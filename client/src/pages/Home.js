@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
+import { AuthContext } from '../context/authContext';
 
 const GET_ALL_POSTS = gql`
   {
@@ -14,6 +15,15 @@ const GET_ALL_POSTS = gql`
 
 const Home = () => {
   const { data, loading, error } = useQuery(GET_ALL_POSTS);
+  const { state, dispatch } = useContext(AuthContext);
+  console.log(state);
+
+  const updateUserName = () => {
+    dispatch({
+      type: 'LOGGED_IN_USER',
+      payload: 'Nick B'
+    });
+  };
 
   return loading 
   ? <p className='p-5'>Loading...</p>
@@ -32,6 +42,7 @@ const Home = () => {
           </div>
         )) }
       </div>
+      <button onClick={ updateUserName } className='btn btn-primary'>Change User Name</button>
     </div>
   ;
 };
