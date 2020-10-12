@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { auth } from "../../firebase/firebase";
 import { toast } from "react-toastify";
 
+import AuthForm from '../../components/forms/AuthForm';
+
 const Register = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,25 +34,12 @@ const Register = () => {
   return (
     <div className="container p-5">
       <h4>{loading ? "Loading..." : "Register"}</h4>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
-            type="email"
-            value={email}
-            placeholder="Enter Email"
-            disabled={loading}
-          />
-        </div>
-        <button
-          className="btn btn-raised btn-primary"
-          disabled={!email || loading}
-        >
-          Submit
-        </button>
-      </form>
+      <AuthForm 
+        email={ email } 
+        loading={ loading } 
+        setEmail={ setEmail } 
+        handleSubmit={ handleSubmit } 
+      />
     </div>
   );
 };

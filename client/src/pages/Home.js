@@ -14,7 +14,7 @@ const GET_ALL_POSTS = gql`
 `;
 
 const Home = () => {
-  const { data, loading, error } = useQuery(GET_ALL_POSTS);
+  const { data, loading } = useQuery(GET_ALL_POSTS);
   const { state, dispatch } = useContext(AuthContext);
   console.log(state);
 
@@ -29,7 +29,7 @@ const Home = () => {
   ? <p className='p-5'>Loading...</p>
   : <div className='container'>
       <div className='row p-5'>
-        { data.allPosts.map(post => (
+        { data && data.allPosts.map(post => (
           <div key={ post.id } className='col-md-4'>
             <div className='card' key={ post.id }>
               <div className='card-body'>

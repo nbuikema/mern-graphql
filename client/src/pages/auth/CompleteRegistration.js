@@ -3,6 +3,19 @@ import { auth } from "../../firebase/firebase";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
+import { useMutation } from '@apollo/react-hooks';
+import { gql } from "apollo-boost";
+
+import AuthForm from '../../components/forms/AuthForm';
+
+const USER_CREATE = gql`
+  mutation userCreate {
+    userCreate {
+      username
+      email
+    }
+  }
+`;
 
 const CompleteRegistration = () => {
   const { dispatch } = useContext(AuthContext);
@@ -10,6 +23,7 @@ const CompleteRegistration = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   let history = useHistory();
+  const [userCreate] = useMutation(USER_CREATE);
 
   useEffect(() => {
     setEmail(window.localStorage.getItem("emailForRegistration"));
@@ -42,6 +56,8 @@ const CompleteRegistration = () => {
           payload: { email: user.email, token: idTokenResult.token },
         });
 
+        userCreate();
+
         history.push("/");
       }
     } catch (error) {
@@ -53,29 +69,15 @@ const CompleteRegistration = () => {
   return (
     <div className="container p-5">
       <h4>{loading ? "Loading..." : "Complete Registration"}</h4>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Email</label>
-          <input className="form-control" type="email" value={email} disabled />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
-            type="password"
-            value={password}
-            placeholder="Enter Password"
-            disabled={loading}
-          />
-        </div>
-        <button
-          className="btn btn-raised btn-primary"
-          disabled={!password || loading}
-        >
-          Submit
-        </button>
-      </form>
+      <AuthForm 
+        email={ email } 
+        password={ password } 
+        setPassword={ setPassword } 
+        loading={ loading } 
+        handleSubmit={ handleSubmit } 
+        showPasswordInput={ true }
+        changeEmail={ false }
+      />
     </div>
   );
 };
