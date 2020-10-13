@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { auth } from "../firebase/firebase";
-import { AuthContext } from "../context/authContext";
+import React, { useContext } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import { auth } from '../firebase/firebase';
+import { AuthContext } from '../context/authContext';
 
 const Nav = () => {
   const { state, dispatch } = useContext(AuthContext);
@@ -15,11 +15,11 @@ const Nav = () => {
     auth.signOut();
 
     dispatch({
-      type: "LOGGED_IN_USER",
+      type: 'LOGGED_IN_USER',
       payload: null,
     });
 
-    history.push("/login");
+    history.push('/login');
   };
 
   return (
@@ -42,11 +42,18 @@ const Nav = () => {
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
           {user ? (
-            <li className="nav-item">
-              <a onClick={logout} className="nav-link" href="/login">
-                Logout
-              </a>
-            </li>
+            <>
+              <li className="nav-item">
+                <Link className="nav-link" to="/profile">
+                  {user.email.split('@')[0]}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <a onClick={logout} className="nav-link" href="/login">
+                  Logout
+                </a>
+              </li>
+            </>
           ) : (
             <>
               <li className="nav-item">

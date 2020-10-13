@@ -1,10 +1,10 @@
-import React, { useState, useContext } from "react";
-import { AuthContext } from "../../context/authContext";
-import { useHistory } from "react-router-dom";
-import { toast } from "react-toastify";
-import { auth, googleAuthProvider } from "../../firebase/firebase";
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../../context/authContext';
+import { useHistory, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { auth, googleAuthProvider } from '../../firebase/firebase';
 import { useMutation } from '@apollo/react-hooks';
-import { gql } from "apollo-boost";
+import { gql } from 'apollo-boost';
 
 import AuthForm from '../../components/forms/AuthForm';
 
@@ -19,8 +19,8 @@ const USER_CREATE = gql`
 
 const Login = () => {
   const { dispatch } = useContext(AuthContext);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   let history = useHistory();
   const [userCreate] = useMutation(USER_CREATE);
@@ -37,13 +37,13 @@ const Login = () => {
           const idTokenResult = await user.getIdTokenResult();
 
           dispatch({
-            type: "LOGGED_IN_USER",
+            type: 'LOGGED_IN_USER',
             payload: { email: user.email, token: idTokenResult.token },
           });
 
           userCreate();
 
-          history.push("/");
+          history.push('/profile');
         });
     } catch (error) {
       toast.error(error.message);
@@ -59,27 +59,31 @@ const Login = () => {
       const idTokenResult = await user.getIdTokenResult();
 
       dispatch({
-        type: "LOGGED_IN_USER",
+        type: 'LOGGED_IN_USER',
         payload: { email: user.email, token: idTokenResult.token },
       });
 
-      history.push("/");
+      history.push('/profile');
     });
   };
 
   return (
     <div className="container p-5">
-      <h4>{loading ? "Loading..." : "Login"}</h4>
-      <AuthForm 
-        email={ email } 
-        setEmail={ setEmail }
-        password={ password } 
-        setPassword={ setPassword } 
-        loading={ loading } 
-        handleSubmit={ handleSubmit } 
-        showPasswordInput={ true }
-        googleLogin={ googleLogin }
+      <h4>{loading ? 'Loading...' : 'Login'}</h4>
+      <AuthForm
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        loading={loading}
+        handleSubmit={handleSubmit}
+        showPasswordInput={true}
+        googleLogin={googleLogin}
+        showGoogleLogin={true}
       />
+      <Link to="/password/forgot" className="text-danger float-right">
+        Forgot Password
+      </Link>
     </div>
   );
 };
