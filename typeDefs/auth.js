@@ -4,6 +4,8 @@ module.exports = gql`
   scalar DateTime
   type Query {
     profile: User!
+    publicProfile(username: String!): User!
+    allUsers: [User!]!
   }
   type UserCreateResponse {
     username: String!

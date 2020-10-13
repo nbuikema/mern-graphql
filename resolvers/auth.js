@@ -12,7 +12,7 @@ const userCreate = async (parent, args, { req }) => {
     ? user
     : new User({
         email: currentUser.email,
-        username: shortid.generate(),
+        username: shortid.generate()
       }).save();
 };
 
@@ -34,12 +34,22 @@ const profile = async (parent, args, { req }) => {
   return await User.findOne({ email: currentUser.email }).exec();
 };
 
+const publicProfile = async (parent, args) => {
+  return await User.findOne({ username: args.username }).exec();
+};
+
+const allUsers = async (parent, args) => {
+  return await User.find().exec();
+};
+
 module.exports = {
   Query: {
     profile,
+    publicProfile,
+    allUsers
   },
   Mutation: {
     userCreate,
-    userUpdate,
-  },
+    userUpdate
+  }
 };

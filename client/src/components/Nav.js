@@ -16,7 +16,7 @@ const Nav = () => {
 
     dispatch({
       type: 'LOGGED_IN_USER',
-      payload: null,
+      payload: null
     });
 
     history.push('/login');
@@ -41,6 +41,11 @@ const Nav = () => {
 
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
+          <li className="nav-item">
+            <Link className="nav-link" to="/users">
+              Users
+            </Link>
+          </li>
           {user ? (
             <>
               <li className="nav-item">

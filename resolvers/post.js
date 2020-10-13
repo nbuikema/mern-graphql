@@ -3,30 +3,30 @@ const { authCheck } = require('../helpers/auth');
 
 // queries
 const totalPosts = () => posts.length;
+
 const allPosts = async (parent, args, { req }) => {
-  await authCheck(req);
-  return posts;
-}
+  return await posts;
+};
 
 // mutations
 const newPost = (parent, { input: { title, description } }) => {
-    const post = {
-        id: posts.length + 1,
-        title,
-        description
-    };
+  const post = {
+    id: posts.length + 1,
+    title,
+    description
+  };
 
-    posts.push(post);
+  posts.push(post);
 
-    return post;
+  return post;
 };
 
 module.exports = {
-    Query: {
-        totalPosts,
-        allPosts
-    },
-    Mutation: {
-        newPost
-    }
+  Query: {
+    totalPosts,
+    allPosts
+  },
+  Mutation: {
+    newPost
+  }
 };

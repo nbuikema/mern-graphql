@@ -2,7 +2,9 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Route, Link } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
 
-const PrivateRoute = ({ children, ...rest }) => {
+import LoadingToRedirect from './LoadingToRedirect';
+
+const PrivateRoute = ({ ...rest }) => {
   const { state } = useContext(AuthContext);
   const [user, setUser] = useState(false);
 
@@ -43,7 +45,7 @@ const PrivateRoute = ({ children, ...rest }) => {
     </div>
   );
 
-  return user ? renderContent() : <h4>Loading...</h4>;
+  return user ? renderContent() : <LoadingToRedirect path="/login" />;
 };
 
 export default PrivateRoute;

@@ -5,6 +5,7 @@ import { Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { AuthContext } from './context/authContext';
 
+import PublicRoute from './components/PublicRoute';
 import PrivateRoute from './components/PrivateRoute';
 import Nav from './components/Nav';
 
@@ -16,10 +17,12 @@ import PasswordUpdate from './pages/auth/PasswordUpdate';
 import PasswordForgot from './pages/auth/PasswordForgot';
 import Profile from './pages/auth/Profile';
 import Post from './pages/post/Post';
+import Users from './pages/Users';
+import SingleUser from './pages/SingleUser';
 
 const App = () => {
   const {
-    state: { user },
+    state: { user }
   } = useContext(AuthContext);
 
   const client = new ApolloClient({
@@ -27,10 +30,10 @@ const App = () => {
     request: (operation) => {
       operation.setContext({
         headers: {
-          authtoken: user ? user.token : '',
-        },
+          authtoken: user ? user.token : ''
+        }
       });
-    },
+    }
   });
 
   return (
@@ -39,14 +42,16 @@ const App = () => {
       <ToastContainer />
       <Switch>
         <Route exact path="/" component={Home} />
-        <Route exact path="/register" component={Register} />
-        <Route
+        <Route exact path="/users" component={Users} />
+        <Route exact path="/user/:username" component={SingleUser} />
+        <PublicRoute exact path="/register" component={Register} />
+        <PublicRoute
           exact
           path="/complete-registration"
           component={CompleteRegistration}
         />
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/password/forgot" component={PasswordForgot} />
+        <PublicRoute exact path="/login" component={Login} />
+        <PublicRoute exact path="/password/forgot" component={PasswordForgot} />
         <PrivateRoute
           exact
           path="/password/update"
