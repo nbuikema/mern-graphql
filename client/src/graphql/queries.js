@@ -1,4 +1,5 @@
 import { gql } from 'apollo-boost';
+import { POST_DATA } from './fragments';
 
 export const PROFILE = gql`
   query {
@@ -19,13 +20,12 @@ export const PROFILE = gql`
 `;
 
 export const GET_ALL_POSTS = gql`
-  {
+  query {
     allPosts {
-      id
-      title
-      description
+      ...postData
     }
   }
+  ${POST_DATA}
 `;
 
 export const GET_ALL_USERS = gql`
@@ -55,4 +55,22 @@ export const PUBLIC_PROFILE = gql`
       }
     }
   }
+`;
+
+export const POSTS_BY_USER = gql`
+  query {
+    postsByUser {
+      ...postData
+    }
+  }
+  ${POST_DATA}
+`;
+
+export const SINGLE_POST = gql`
+  query singlePost($postId: String!) {
+    singlePost(postId: $postId) {
+      ...postData
+    }
+  }
+  ${POST_DATA}
 `;

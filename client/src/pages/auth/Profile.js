@@ -70,13 +70,7 @@ const Profile = () => {
         <div className="col-md-12 pb-3">
           <h4>{loading ? 'Loading...' : 'Profile'}</h4>
         </div>
-        <FileUpload
-          images={images}
-          setUser={setUser}
-          setLoading={setLoading}
-          user={user}
-          loading={loading}
-        />
+        <FileUpload setValues={setUser} setLoading={setLoading} values={user} />
         <UserProfile
           {...user}
           handleChange={handleChange}
