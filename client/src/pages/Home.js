@@ -1,13 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@apollo/react-hooks';
-import { GET_ALL_POSTS } from '../graphql/queries';
+import { GET_ALL_POSTS, TOTAL_POSTS } from '../graphql/queries';
 import { useHistory } from 'react-router-dom';
 
 import Image from '../components/Image';
 
 const Home = () => {
+  const [page, setPage] = useState(1);
   let history = useHistory();
-  const { data, loading } = useQuery(GET_ALL_POSTS);
+  const { data, loading } = useQuery(GET_ALL_POSTS, {
+    variables: { page: page }
+  });
+  const { data: postCount } = useQuery(TOTAL_POSTS);
+
+  let totalPages;
+  const pagination = () => {
+    totalPages = Math.ceil(postCount && postCount.totalPosts / 9);
+
+    let pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(
+        <li key={i}>
+          <a
+            onClick={() => setPage(i)}
+            className={`page-link ${page === i && 'activePagination'}`}
+          >
+            {i}
+          </a>
+        </li>
+      );
+    }
+
+    return pages;
+  };
 
   return loading ? (
     <p className="p-5">Loading...</p>
@@ -36,6 +61,27 @@ const Home = () => {
             </div>
           ))}
       </div>
+      <nav>
+        <ul className="pagination justify-content-center">
+          <li>
+            <a
+              onClick={() => setPage(1)}
+              className={`page-link ${page === 1 && 'disabled'}`}
+            >
+              Previous
+            </a>
+          </li>
+          {pagination()}
+          <li>
+            <a
+              onClick={() => setPage(totalPages)}
+              className={`page-link ${page === totalPages && 'disabled'}`}
+            >
+              Next
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 };

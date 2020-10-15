@@ -21,6 +21,7 @@ import PostUpdate from './pages/post/PostUpdate';
 import SinglePost from './pages/post/SinglePost';
 import Users from './pages/Users';
 import SingleUser from './pages/SingleUser';
+import SearchResults from './pages/SearchResults';
 
 const App = () => {
   const {
@@ -44,6 +45,7 @@ const App = () => {
       <ToastContainer />
       <Switch>
         <Route exact path="/" component={Home} />
+        <Route exact path="/search/:query" component={SearchResults} />
         <Route exact path="/users" component={Users} />
         <Route exact path="/user/:username" component={SingleUser} />
         <PublicRoute exact path="/register" component={Register} />

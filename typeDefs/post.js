@@ -2,9 +2,11 @@ const { gql } = require('apollo-server-express');
 
 module.exports = gql`
   type Query {
-    allPosts: [Post!]!
+    allPosts(page: Int): [Post!]!
     postsByUser: [Post!]!
     singlePost(postId: String!): Post!
+    totalPosts: Int!
+    search(query: String): [Post]
   }
   type Post {
     _id: ID!

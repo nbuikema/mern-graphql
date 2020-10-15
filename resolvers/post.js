@@ -23,8 +23,13 @@ const postCreate = async (parent, args, { req }) => {
 };
 
 const allPosts = async (parent, args) => {
+  const currentPage = args.page || 1;
+  const postsPerPage = 9;
+
   return await Post.find()
+    .skip((currentPage - 1) * postsPerPage)
     .populate('postedBy', '_id username')
+    .limit(postsPerPage)
     .sort({ createdAt: -1 })
     .exec();
 };
@@ -99,11 +104,23 @@ const postDelete = async (parent, args, { req }) => {
   return deletedPost;
 };
 
+const totalPosts = async (parent, args) => {
+  return await Post.estimatedDocumentCount().exec();
+};
+
+const search = async (parent, { query }) => {
+  return await Post.find({ $text: { $search: query } })
+    .populate('postedBy', 'username')
+    .exec();
+};
+
 module.exports = {
   Query: {
     allPosts,
     postsByUser,
-    singlePost
+    singlePost,
+    totalPosts,
+    search
   },
   Mutation: {
     postCreate,
