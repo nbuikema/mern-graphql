@@ -2,8 +2,13 @@ const { authCheck } = require('../helpers/auth');
 const User = require('../models/User');
 const Post = require('../models/Post');
 
+// subscriptions
+const POST_ADDED = 'POST_ADDED';
+const POST_UPDATED = 'POST_UPDATED';
+const POST_DELETED = 'POST_DELETED';
+
 // mutations
-const postCreate = async (parent, args, { req }) => {
+const postCreate = async (parent, args, { req, pubsub }) => {
   if (args.input.content.trim() === '') {
     throw new Error('Content is required.');
   }
@@ -18,6 +23,8 @@ const postCreate = async (parent, args, { req }) => {
   })
     .save()
     .then((post) => post.populate('postedBy', '_id username').execPopulate());
+
+  pubsub.publish(POST_ADDED, { postAdded: newPost });
 
   return newPost;
 };
@@ -52,7 +59,7 @@ const singlePost = async (parent, args) => {
     .exec();
 };
 
-const postUpdate = async (parent, args, { req }) => {
+const postUpdate = async (parent, args, { req, pubsub }) => {
   if (args.input.content.trim() === '') {
     throw new Error('Content is required.');
   }
@@ -81,10 +88,12 @@ const postUpdate = async (parent, args, { req }) => {
     .exec()
     .then((post) => post.populate('postedBy', '_id username').execPopulate());
 
+  pubsub.publish(POST_UPDATED, { postUpdated: updatedPost });
+
   return updatedPost;
 };
 
-const postDelete = async (parent, args, { req }) => {
+const postDelete = async (parent, args, { req, pubsub }) => {
   const currentUser = await authCheck(req);
 
   const currentUserFromDb = await User.findOne({
@@ -100,6 +109,8 @@ const postDelete = async (parent, args, { req }) => {
   }
 
   let deletedPost = await Post.findByIdAndDelete({ _id: args.postId }).exec();
+
+  pubsub.publish(POST_DELETED, { postDeleted: deletedPost });
 
   return deletedPost;
 };
@@ -126,5 +137,19 @@ module.exports = {
     postCreate,
     postUpdate,
     postDelete
+  },
+  Subscription: {
+    postAdded: {
+      subscribe: (parent, args, { pubsub }) =>
+        pubsub.asyncIterator([POST_ADDED])
+    },
+    postUpdated: {
+      subscribe: (parent, args, { pubsub }) =>
+        pubsub.asyncIterator([POST_UPDATED])
+    },
+    postDeleted: {
+      subscribe: (parent, args, { pubsub }) =>
+        pubsub.asyncIterator([POST_DELETED])
+    }
   }
 };

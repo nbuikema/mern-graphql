@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import { useLazyQuery, useQuery, useSubscription } from '@apollo/react-hooks';
 import { GET_ALL_POSTS, TOTAL_POSTS } from '../graphql/queries';
 import { useHistory } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import {
+  POST_ADDED,
+  POST_UPDATED,
+  POST_DELETED
+} from '../graphql/subscriptions';
 
 import Image from '../components/Image';
 
@@ -9,9 +15,75 @@ const Home = () => {
   const [page, setPage] = useState(1);
   let history = useHistory();
   const { data, loading } = useQuery(GET_ALL_POSTS, {
-    variables: { page: page }
+    variables: { page }
   });
   const { data: postCount } = useQuery(TOTAL_POSTS);
+
+  const { data: newPost } = useSubscription(POST_ADDED, {
+    onSubscriptionData: async ({
+      client: { cache },
+      subscriptionData: { data }
+    }) => {
+      const { allPosts } = cache.readQuery({
+        query: GET_ALL_POSTS,
+        variables: { page }
+      });
+
+      cache.writeQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+        data: {
+          allPosts: [data.postAdded, ...allPosts]
+        }
+      });
+
+      fetchPosts({
+        variables: { page },
+        refetchQueries: [{ query: GET_ALL_POSTS, variables: { page } }]
+      });
+
+      toast.success('New Post!');
+    }
+  });
+
+  const { data: updatedPost } = useSubscription(POST_UPDATED, {
+    onSubscriptionData: async () => {
+      toast.success('Updated Post!');
+    }
+  });
+
+  const { data: deletedPost } = useSubscription(POST_DELETED, {
+    onSubscriptionData: async ({
+      client: { cache },
+      subscriptionData: { data }
+    }) => {
+      const { allPosts } = cache.readQuery({
+        query: GET_ALL_POSTS,
+        variables: { page }
+      });
+
+      let filteredPosts = allPosts.filter(
+        (post) => post._id !== deletedPost.postDeleted._id
+      );
+
+      cache.writeQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+        data: {
+          allPosts: filteredPosts
+        }
+      });
+
+      fetchPosts({
+        variables: { page },
+        refetchQueries: [{ query: GET_ALL_POSTS, variables: { page } }]
+      });
+
+      toast.success('Deleted Post!');
+    }
+  });
+
+  const [fetchPosts, { data: posts }] = useLazyQuery(GET_ALL_POSTS);
 
   let totalPages;
   const pagination = () => {

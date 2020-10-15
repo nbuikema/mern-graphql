@@ -1,5 +1,11 @@
 import React, { useContext } from 'react';
-import ApolloClient from 'apollo-boost';
+import ApolloClient from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
+import { split } from 'apollo-link';
+import { setContext } from 'apollo-link-context';
+import { WebSocketLink } from 'apollo-link-ws';
+import { getMainDefinition } from 'apollo-utilities';
 import { ApolloProvider } from '@apollo/react-hooks';
 import { Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -28,6 +34,45 @@ const App = () => {
     state: { user }
   } = useContext(AuthContext);
 
+  const wsLink = new WebSocketLink({
+    uri: process.env.REACT_APP_GRAPHQL_WS_ENDPOINT,
+    options: {
+      reconnect: true
+    }
+  });
+
+  const httpLink = new HttpLink({
+    uri: process.env.REACT_APP_GRAPHQL_ENDPOINT
+  });
+
+  const authLink = setContext(() => {
+    return {
+      headers: {
+        authtoken: user ? user.token : ''
+      }
+    };
+  });
+
+  const httpAuthLink = authLink.concat(httpLink);
+
+  const link = split(
+    ({ query }) => {
+      const definition = getMainDefinition(query);
+      return (
+        definition.kind === 'OperationDefinition' &&
+        definition.operation === 'subscription'
+      );
+    },
+    wsLink,
+    httpAuthLink
+  );
+
+  const client = new ApolloClient({
+    cache: new InMemoryCache(),
+    link
+  });
+
+  /*
   const client = new ApolloClient({
     uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
     request: (operation) => {
@@ -38,6 +83,7 @@ const App = () => {
       });
     }
   });
+  */
 
   return (
     <ApolloProvider client={client}>

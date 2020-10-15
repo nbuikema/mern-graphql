@@ -1,5 +1,5 @@
 const express = require('express');
-const { ApolloServer } = require('apollo-server-express');
+const { ApolloServer, PubSub } = require('apollo-server-express');
 const http = require('http');
 const path = require('path');
 const { mergeTypeDefs, mergeResolvers } = require('@graphql-tools/merge');
@@ -10,6 +10,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cloudinary = require('cloudinary');
 require('dotenv').config();
+
+const pubsub = new PubSub();
 
 const app = express();
 
@@ -44,13 +46,15 @@ const resolvers = mergeResolvers(
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req, res }) => ({ req, res })
+  context: ({ req }) => ({ req, pubsub })
 });
 
 // connect apollo gql server to express server
 apolloServer.applyMiddleware({ app });
 
 const httpServer = http.createServer(app);
+
+apolloServer.installSubscriptionHandlers(httpServer);
 
 app.get('/rest', (req, res) => {
   res.json({ data: 'you hit rest endpoint' });
@@ -90,6 +94,6 @@ app.post('/removeimage', authCheckMiddleware, (req, res) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
+httpServer.listen(process.env.PORT, () => {
   console.log(`server started on port ${process.env.PORT}`);
 });
